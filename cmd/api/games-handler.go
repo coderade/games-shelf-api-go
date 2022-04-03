@@ -15,6 +15,8 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
 		app.logger.Println(errors.New("invalid id parameter"))
+		app.errorJSON(writer, err)
+		return
 	}
 
 	app.logger.Println("ID is:", id)
