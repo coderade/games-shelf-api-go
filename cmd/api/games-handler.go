@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
@@ -23,25 +22,23 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 
 	err = app.writeJSON(writer, http.StatusOK, game, "game")
 
+	if err != nil {
+		app.errorJSON(writer, err)
+		return
+	}
+
 }
 
 func (app *application) getAllGames(writer http.ResponseWriter, reader *http.Request) {
-	currentStatus := AppStatus{
-		Status:      "Available",
-		Environment: app.config.env,
-		Version:     version,
+	games, err := app.shelf.GetAllGames()
+	if err != nil {
+		app.errorJSON(writer, err)
+		return
 	}
 
-	j, err := json.MarshalIndent(currentStatus, "", "\t")
+	err = app.writeJSON(writer, http.StatusOK, games, "games")
 	if err != nil {
-		app.logger.Println(err)
-	}
-
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusOK)
-
-	_, err = writer.Write(j)
-	if err != nil {
-		app.logger.Println(err)
+		app.errorJSON(writer, err)
+		return
 	}
 }

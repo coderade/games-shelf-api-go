@@ -43,8 +43,66 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 		return nil, err
 	}
 
-	id = 1
-	query = `SELECT 
+	gameGenres, gamePlatforms, err := shelf.getGenresAndPlatformsByGameId(id)
+
+	game.GameGenre = gameGenres
+	game.GamePlatform = gamePlatforms
+	return &game, nil
+}
+
+// GetAllGames returns all games and an error, if any
+func (shelf *Shelf) GetAllGames() ([]Game, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `SELECT id, title, description, year, publisher, rating, created_at, updated_at 
+			FROM games ORDER BY title`
+
+	rows, err := shelf.DB.QueryContext(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var games []Game
+
+	for rows.Next() {
+		var game Game
+
+		err := rows.Scan(
+			&game.ID,
+			&game.Title,
+			&game.Description,
+			&game.Year,
+			&game.Publisher,
+			&game.Rating,
+			&game.CreatedAt,
+			&game.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		gameGenres, gamePlatforms, err := shelf.getGenresAndPlatformsByGameId(game.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		game.GameGenre = gameGenres
+		game.GamePlatform = gamePlatforms
+
+		games = append(games, game)
+	}
+
+	return games, nil
+}
+
+func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]Genre, []Platform, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `SELECT 
        			gn.id, 
        			gn.genre_name,
        			p.id,
@@ -58,7 +116,6 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 			WHERE gg.game_id = $1
 			  and gp.game_id = $1
 `
-
 	rows, _ := shelf.DB.QueryContext(ctx, query, id)
 	defer rows.Close()
 
@@ -77,7 +134,7 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		// add a platform only if not exists
@@ -89,15 +146,7 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 		if !slices.Contains(gameGenres, g) {
 			gameGenres = append(gameGenres, g)
 		}
-
 	}
 
-	game.GameGenre = gameGenres
-	game.GamePlatform = gamePlatforms
-	return &game, nil
-}
-
-// GetAllGames returns all games and an error, if any
-func (shelf *Shelf) GetAllGames(id int) ([]*Game, error) {
-	return nil, nil
+	return gameGenres, gamePlatforms, nil
 }
