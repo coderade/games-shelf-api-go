@@ -16,8 +16,6 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
-	app.logger.Println("ID is:", id)
-
 	game, err := app.shelf.GetGameById(id)
 
 	err = app.writeJSON(writer, http.StatusOK, game, "game")
