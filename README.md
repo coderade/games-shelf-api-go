@@ -2,9 +2,7 @@
 
 Games Shelf API developed in GO.
 
-
 ## Database
-
 #### TODO: Update doc
 
 ### commands
