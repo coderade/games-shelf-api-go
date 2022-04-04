@@ -270,6 +270,7 @@ VALUES (1, 'The legend of Zelda: Ocarina of Time', 'The Legend of Zelda: Ocarina
 -- Data for Name: games_genres; Type: TABLE DATA; Schema: public; Owner: -
 --
 INSERT INTO games_genres VALUES (1, 1, 1, NOW(), NOW() );
+INSERT INTO games_genres VALUES (2, 1, 3, NOW(), NOW() );
 
 
 --

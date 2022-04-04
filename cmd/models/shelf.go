@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"golang.org/x/exp/slices"
 	"time"
 )
 
@@ -43,9 +44,12 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 	}
 
 	id = 1
-	query = `SELECT gn.genre_name,
-				   p.platform_name,
-       			   p.generation
+	query = `SELECT 
+       			gn.id, 
+       			gn.genre_name,
+       			p.id,
+				p.platform_name,
+       			p.generation
 			FROM games g
 					LEFT JOIN games_genres gg on g.id = gg.game_id
 					 LEFT JOIN games_platforms gp on g.id = gp.game_id
@@ -58,24 +62,34 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 	rows, _ := shelf.DB.QueryContext(ctx, query, id)
 	defer rows.Close()
 
-	var gameGenres []GameGenre
-	var gamePlatforms []GamePlatform
+	var gameGenres []Genre
+	var gamePlatforms []Platform
 
 	for rows.Next() {
-		var gg GameGenre
-		var gp GamePlatform
+		var g Genre
+		var p Platform
 		err := rows.Scan(
-			&gg.Genre.Name,
-			&gp.Platform.Name,
-			&gp.Platform.Generation,
+			&g.ID,
+			&g.Name,
+			&p.ID,
+			&p.Name,
+			&p.Generation,
 		)
 
 		if err != nil {
 			return nil, err
 		}
 
-		gameGenres = append(gameGenres, gg)
-		gamePlatforms = append(gamePlatforms, gp)
+		// add a platform only if not exists
+		if !slices.Contains(gamePlatforms, p) {
+			gamePlatforms = append(gamePlatforms, p)
+		}
+
+		// add a genre only if not exists
+		if !slices.Contains(gameGenres, g) {
+			gameGenres = append(gameGenres, g)
+		}
+
 	}
 
 	game.GameGenre = gameGenres

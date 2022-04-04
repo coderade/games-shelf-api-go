@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Platform struct {
-	ID         int       `json:"-"`
+	ID         int       `json:"id"`
 	Name       string    `json:"name"`
 	Generation string    `json:"generation"`
 	CreatedAt  time.Time `json:"-"`
