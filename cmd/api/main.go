@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"games-shelf-api-go/cmd/models"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,7 @@ type AppStatus struct {
 type application struct {
 	config config
 	logger *log.Logger
+	shelf  models.Shelf
 }
 
 func main() {
@@ -52,6 +54,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		shelf:  models.NewShelf(db),
 	}
 
 	fmt.Println("Running")

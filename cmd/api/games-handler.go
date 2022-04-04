@@ -3,11 +3,9 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"games-shelf-api-go/cmd/models"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 func (app *application) getGame(writer http.ResponseWriter, request *http.Request) {
@@ -21,19 +19,7 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 
 	app.logger.Println("ID is:", id)
 
-	game := models.Game{
-		ID:           id,
-		Title:        "Game 1",
-		Description:  "A game",
-		Platform:     "",
-		Year:         1994,
-		Publisher:    "",
-		Rating:       "",
-		CreatedAt:    time.Time{},
-		UpdatedAt:    time.Now(),
-		GameGenre:    nil,
-		GamePlatform: nil,
-	}
+	game, err := app.shelf.GetGameById(id)
 
 	err = app.writeJSON(writer, http.StatusOK, game, "game")
 

@@ -236,11 +236,11 @@ VALUES (1, 'Adventure', '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
 -- Data for Name: genres; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.platforms (id, platform_name, created_at, updated_at)
-VALUES (1, 'Nintendo 64', '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
-       (2, 'Super Nintendo Entertainment System', '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
-       (3, 'Playstation 1', '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
-       (4, 'Sega Genesis', '2022-04-04 00:00:00', '2022-04-04 00:00:00');
+INSERT INTO public.platforms (id, platform_name, generation,created_at , updated_at)
+VALUES (1, 'Nintendo 64', '2022-04-04 00:00:00', 5, '2022-04-04 00:00:00'),
+       (2, 'Super Nintendo Entertainment System',4, '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
+       (3, 'Playstation 1', '2022-04-04 00:00:00',5, '2022-04-04 00:00:00'),
+       (4, 'Sega Genesis', '2022-04-04 00:00:00', 4, '2022-04-04 00:00:00');
 
 --
 -- Data for Name: games; Type: TABLE DATA; Schema: public; Owner: -
@@ -265,6 +265,17 @@ VALUES (1, 'The legend of Zelda: Ocarina of Time', 'The Legend of Zelda: Ocarina
 --
 -- Name: genres genres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
+
+--
+-- Data for Name: games_genres; Type: TABLE DATA; Schema: public; Owner: -
+--
+INSERT INTO games_genres VALUES (1, 1, 1, NOW(), NOW() );
+
+
+--
+-- Data for Name: games_genres; Type: TABLE DATA; Schema: public; Owner: -
+--
+INSERT INTO games_platforms VALUES (1, 1, 1, NOW(), NOW() );
 
 ALTER TABLE ONLY public.genres
     ADD CONSTRAINT genres_pkey PRIMARY KEY (id);
