@@ -4,7 +4,6 @@ import (
 	"net/http"
 )
 
-
 func (app *application) getAllGenres(writer http.ResponseWriter, reader *http.Request) {
 	genres, err := app.shelf.GetAllGenres()
 	if err != nil {

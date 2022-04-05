@@ -27,8 +27,11 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 
 }
 
-func (app *application) getAllGames(writer http.ResponseWriter, reader *http.Request) {
-	games, err := app.shelf.GetAllGames()
+func (app *application) getAllGames(writer http.ResponseWriter, request *http.Request) {
+	queryValues := request.URL.Query()
+	genreId, err := strconv.Atoi(queryValues.Get("genre_id"))
+	platformId, err := strconv.Atoi(queryValues.Get("platform_id"))
+	games, err := app.shelf.GetAllGames(genreId, platformId)
 	if err != nil {
 		app.errorJSON(writer, err)
 		return
@@ -40,3 +43,35 @@ func (app *application) getAllGames(writer http.ResponseWriter, reader *http.Req
 		return
 	}
 }
+
+//func (app *application) getAllGamesByGenre(writer http.ResponseWriter, request *http.Request) {
+//	queryValues := request.URL.Query()
+//	genreId, err := strconv.Atoi(queryValues.Get("genre_id"))
+//	games, err := app.shelf.GetAllGames(genreId, 0)
+//	if err != nil {
+//		app.errorJSON(writer, err)
+//		return
+//	}
+//
+//	err = app.writeJSON(writer, http.StatusOK, games, "games")
+//	if err != nil {
+//		app.errorJSON(writer, err)
+//		return
+//	}
+//}
+//
+//func (app *application) getAllGamesByPlatform(writer http.ResponseWriter, request *http.Request) {
+//	queryValues := request.URL.Query()
+//	platformId, err := strconv.Atoi(queryValues.Get("platform_id"))
+//	games, err := app.shelf.GetAllGames(0, platformId)
+//	if err != nil {
+//		app.errorJSON(writer, err)
+//		return
+//	}
+//
+//	err = app.writeJSON(writer, http.StatusOK, games, "games")
+//	if err != nil {
+//		app.errorJSON(writer, err)
+//		return
+//	}
+//}

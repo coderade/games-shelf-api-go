@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"golang.org/x/exp/slices"
 	"time"
 )
@@ -51,12 +52,38 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 }
 
 // GetAllGames returns all games and an error, if any
-func (shelf *Shelf) GetAllGames() ([]Game, error) {
+func (shelf *Shelf) GetAllGames(genre int, platform int) ([]Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	platformWhere := ""
+	if platform != 0 {
+		platformWhere = fmt.Sprintf("id IN (SELECT game_id FROM games_platforms WHERE platform_id = %d)", platform)
+	}
+
+	genreWhere := ""
+	if genre != 0 {
+		genreWhere = fmt.Sprintf("id IN (SELECT game_id FROM games_genres WHERE genre_id = %d)", genre)
+	}
+
 	query := `SELECT id, title, description, year, publisher, rating, created_at, updated_at 
-			FROM games ORDER BY title`
+			FROM games`
+
+	if genreWhere != "" {
+		query = query + " WHERE " + genreWhere
+
+		if platformWhere != "" {
+			query = query + " AND " + platformWhere
+		}
+	} else if platformWhere != "" {
+		query = query + " WHERE " + platformWhere
+
+		if genreWhere != "" {
+			query = query + " AND " + genreWhere
+		}
+	}
+
+	query = query + " ORDER BY title"
 
 	rows, err := shelf.DB.QueryContext(ctx, query)
 
