@@ -97,6 +97,76 @@ func (shelf *Shelf) GetAllGames() ([]Game, error) {
 	return games, nil
 }
 
+// GetAllGenres returns all genres and an error, if any
+func (shelf *Shelf) GetAllGenres() ([]Genre, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `SELECT id, genre_name, created_at, updated_at 
+			FROM genres ORDER BY genre_name`
+
+	rows, err := shelf.DB.QueryContext(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var genres []Genre
+
+	for rows.Next() {
+		var genre Genre
+
+		err := rows.Scan(
+			&genre.ID,
+			&genre.Name,
+			&genre.CreatedAt,
+			&genre.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		genres = append(genres, genre)
+	}
+
+	return genres, nil
+}
+
+// GetAllPlatforms returns all platforms and an error, if any
+func (shelf *Shelf) GetAllPlatforms() ([]Platform, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `SELECT id, platform_name, created_at, updated_at 
+			FROM platforms ORDER BY platform_name`
+
+	rows, err := shelf.DB.QueryContext(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var platforms []Platform
+
+	for rows.Next() {
+		var platform Platform
+
+		err := rows.Scan(
+			&platform.ID,
+			&platform.Name,
+			&platform.CreatedAt,
+			&platform.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		platforms = append(platforms, platform)
+	}
+
+	return platforms, nil
+}
+
 func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]Genre, []Platform, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
