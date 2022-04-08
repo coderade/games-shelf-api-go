@@ -8,7 +8,7 @@ type Game struct {
 	Description  string     `json:"description"`
 	Year         int        `json:"year"`
 	Publisher    string     `json:"publisher"`
-	Rating       string     `json:"rating"`
+	Rating       int        `json:"rating"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
 	GameGenre    []Genre    `json:"genres"`

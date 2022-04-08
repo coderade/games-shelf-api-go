@@ -98,6 +98,24 @@ CREATE TABLE public.games
     updated_at  timestamp without time zone
 );
 
+--
+-- Name: platforms_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.games_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: platforms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.games_id_seq OWNED BY public.games.id;
 
 --
 -- Name: games_genres; Type: TABLE; Schema: public; Owner: -
@@ -167,24 +185,6 @@ CREATE SEQUENCE public.games_platforms_id_seq
 ALTER SEQUENCE public.games_platforms_id_seq OWNED BY public.games_platforms.id;
 
 
---
--- Name: games_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.games_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: games_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.games_id_seq OWNED BY public.games.id;
 
 
 --

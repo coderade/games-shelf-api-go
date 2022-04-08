@@ -52,18 +52,18 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 }
 
 // GetAllGames returns all games and an error, if any
-func (shelf *Shelf) GetAllGames(genre int, platform int) ([]Game, error) {
+func (shelf *Shelf) GetAllGames(genreID int, platformID int) ([]Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	platformWhere := ""
-	if platform != 0 {
-		platformWhere = fmt.Sprintf("id IN (SELECT game_id FROM games_platforms WHERE platform_id = %d)", platform)
+	if platformID != 0 {
+		platformWhere = fmt.Sprintf("id IN (SELECT game_id FROM games_platforms WHERE platform_id = %d)", platformID)
 	}
 
 	genreWhere := ""
-	if genre != 0 {
-		genreWhere = fmt.Sprintf("id IN (SELECT game_id FROM games_genres WHERE genre_id = %d)", genre)
+	if genreID != 0 {
+		genreWhere = fmt.Sprintf("id IN (SELECT game_id FROM games_genres WHERE genre_id = %d)", genreID)
 	}
 
 	query := `SELECT id, title, description, year, publisher, rating, created_at, updated_at 
@@ -246,4 +246,51 @@ func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]Genre, []Platform, 
 	}
 
 	return gameGenres, gamePlatforms, nil
+}
+
+func (shelf *Shelf) AddGame(game Game) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `INSERT INTO public.games ( title, description, year, publisher, rating, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+	_, err := shelf.DB.ExecContext(ctx, stmt,
+		game.Title,
+		game.Description,
+		game.Year,
+		game.Publisher,
+		game.Rating,
+		game.CreatedAt,
+		game.UpdatedAt)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (shelf *Shelf) EditGame(game Game) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `UPDATE public.games SET title = $1, description = $2 , year =$3, publisher = $4, rating = $5,
+                      created_at = $6, updated_at = $7 WHERE id = $8`
+
+	_, err := shelf.DB.ExecContext(ctx, stmt,
+		game.Title,
+		game.Description,
+		game.Year,
+		game.Publisher,
+		game.Rating,
+		game.CreatedAt,
+		game.UpdatedAt,
+		game.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
