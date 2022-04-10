@@ -294,3 +294,18 @@ func (shelf *Shelf) EditGame(game Game) error {
 
 	return nil
 }
+
+func (shelf *Shelf) DeleteGame(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `DELETE FROM public.games WHERE id = $1`
+
+	_, err := shelf.DB.ExecContext(ctx, stmt, id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

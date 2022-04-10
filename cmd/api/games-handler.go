@@ -97,6 +97,32 @@ func (app *application) editGame(writer http.ResponseWriter, request *http.Reque
 
 }
 
+func (app *application) deleteGame(writer http.ResponseWriter, request *http.Request) {
+	params := httprouter.ParamsFromContext(request.Context())
+	id, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		app.logger.Println(errors.New("invalid id parameter"))
+		app.errorJSON(writer, err)
+		return
+	}
+
+	err = app.shelf.DeleteGame(id)
+
+	if err != nil {
+		app.errorJSON(writer, err)
+		return
+	}
+
+	res := response{Ok: true}
+
+	err = app.writeJSON(writer, http.StatusOK, res, "response")
+
+	if err != nil {
+		app.errorJSON(writer, err)
+		return
+	}
+}
+
 func (app *application) getGame(writer http.ResponseWriter, request *http.Request) {
 	params := httprouter.ParamsFromContext(request.Context())
 	id, err := strconv.Atoi(params.ByName("id"))
@@ -114,7 +140,6 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 		app.errorJSON(writer, err)
 		return
 	}
-
 }
 
 func (app *application) getAllGames(writer http.ResponseWriter, request *http.Request) {
