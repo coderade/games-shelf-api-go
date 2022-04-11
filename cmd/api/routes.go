@@ -10,7 +10,7 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/status", app.statusHandler)
 
-	router.HandlerFunc(http.MethodPost, "/v1/auth/signin", app.getGame)
+	router.HandlerFunc(http.MethodPost, "/v1/auth/signin", app.SignIn)
 
 	router.HandlerFunc(http.MethodGet, "/v1/games/:id", app.getGame)
 	router.HandlerFunc(http.MethodPut, "/v1/games/edit/:id", app.editGame)

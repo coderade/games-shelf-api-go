@@ -22,8 +22,7 @@ func generatePasswordHash(password string) string {
 
 func generateJWTSecret() string {
 	secret := os.Getenv("APP_SECRET")
-	data := "data"
-	fmt.Printf("Secret: %s Data: %s\n", secret, data)
+	data := "games-shelf-api"
 
 	// Create a new HMAC by defining the hash type and the key (as byte array)
 	h := hmac.New(sha256.New, []byte(secret))
@@ -70,5 +69,5 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 	appSecret := generateJWTSecret()
 
 	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(appSecret))
-	app.writeJSON(writer, http.StatusOK, jwtBytes, "response")
+	app.writeJSON(writer, http.StatusOK, string(jwtBytes), "token")
 }
