@@ -28,7 +28,7 @@ func (app *application) addGame(writer http.ResponseWriter, request *http.Reques
 	var payload GamePayload
 	err := json.NewDecoder(request.Body).Decode(&payload)
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (app *application) addGame(writer http.ResponseWriter, request *http.Reques
 	err = app.shelf.AddGame(game)
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (app *application) addGame(writer http.ResponseWriter, request *http.Reques
 	err = app.writeJSON(writer, http.StatusOK, res, "response")
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (app *application) editGame(writer http.ResponseWriter, request *http.Reque
 	var payload GamePayload
 	err := json.NewDecoder(request.Body).Decode(&payload)
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (app *application) editGame(writer http.ResponseWriter, request *http.Reque
 	err = app.shelf.EditGame(game)
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (app *application) editGame(writer http.ResponseWriter, request *http.Reque
 	err = app.writeJSON(writer, http.StatusOK, res, "response")
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -102,14 +102,14 @@ func (app *application) deleteGame(writer http.ResponseWriter, request *http.Req
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
 		app.logger.Println(errors.New("invalid id parameter"))
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
 	err = app.shelf.DeleteGame(id)
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -118,7 +118,7 @@ func (app *application) deleteGame(writer http.ResponseWriter, request *http.Req
 	err = app.writeJSON(writer, http.StatusOK, res, "response")
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 }
@@ -128,7 +128,7 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
 		app.logger.Println(errors.New("invalid id parameter"))
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -137,7 +137,7 @@ func (app *application) getGame(writer http.ResponseWriter, request *http.Reques
 	err = app.writeJSON(writer, http.StatusOK, game, "game")
 
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 }
@@ -148,13 +148,13 @@ func (app *application) getAllGames(writer http.ResponseWriter, request *http.Re
 	platformId, err := strconv.Atoi(queryValues.Get("platform_id"))
 	games, err := app.shelf.GetAllGames(genreId, platformId)
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
 	err = app.writeJSON(writer, http.StatusOK, games, "games")
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 }

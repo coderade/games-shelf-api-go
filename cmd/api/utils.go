@@ -16,13 +16,12 @@ func (app *application) writeJSON(writer http.ResponseWriter, status int, data i
 	}
 
 	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusOK)
+	writer.WriteHeader(status)
 
 	_, err = writer.Write(js)
 	return nil
 }
-
-func (app *application) errorJSON(writer http.ResponseWriter, err error) {
+func (app *application) errorJSON(writer http.ResponseWriter, err error, status int) {
 
 	type jsonError struct {
 		Message string `json:"message"`

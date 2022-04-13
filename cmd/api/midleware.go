@@ -27,12 +27,12 @@ func (app *application) validateJWTToken(next http.Handler) http.Handler {
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 {
-			app.errorJSON(writer, errors.New("invalid Auth Header"))
+			app.errorJSON(writer, errors.New("invalid Auth Header"), http.StatusUnauthorized)
 			return
 		}
 
 		if headerParts[0] != "Bearer" {
-			app.errorJSON(writer, errors.New("unauthorized - no Bearer"))
+			app.errorJSON(writer, errors.New("unauthorized - no Bearer"), http.StatusUnauthorized)
 			return
 		}
 
@@ -41,29 +41,29 @@ func (app *application) validateJWTToken(next http.Handler) http.Handler {
 		claims, err := jwt.HMACCheck([]byte(token), []byte(app.config.secret))
 
 		if err != nil {
-			app.errorJSON(writer, errors.New("unauthorized - Failed hmac check"))
+			app.errorJSON(writer, errors.New("unauthorized - Failed hmac check"), http.StatusUnauthorized)
 			return
 		}
 
 		if !claims.Valid(time.Now()) {
-			app.errorJSON(writer, errors.New("unauthorized - Token expired"))
+			app.errorJSON(writer, errors.New("unauthorized - Token expired"), http.StatusUnauthorized)
 			return
 		}
 
 		if !claims.AcceptAudience("mydomain.com") {
-			app.errorJSON(writer, errors.New("unauthorized - Invalid Audience"))
+			app.errorJSON(writer, errors.New("unauthorized - Invalid Audience"), http.StatusUnauthorized)
 			return
 		}
 
 		if claims.Issuer != "mydomain.com" {
-			app.errorJSON(writer, errors.New("unauthorized - Invalid Issuer"))
+			app.errorJSON(writer, errors.New("unauthorized - Invalid Issuer"), http.StatusUnauthorized)
 			return
 		}
 
 		userID, err := strconv.ParseInt(claims.Subject, 10, 64)
 
 		if err != nil {
-			app.errorJSON(writer, errors.New("unauthorized"))
+			app.errorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 			return
 		}
 

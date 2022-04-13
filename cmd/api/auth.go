@@ -44,7 +44,7 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 
 	if err != nil {
 		app.logger.Println(errors.New("error decoding credentials"))
-		app.errorJSON(writer, errors.New("unauthorized"))
+		app.errorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(credentials.Password))
 	if err != nil {
 		app.logger.Println(errors.New("unauthorized"))
-		app.errorJSON(writer, errors.New("unauthorized"))
+		app.errorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 

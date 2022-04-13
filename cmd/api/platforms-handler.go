@@ -7,13 +7,13 @@ import (
 func (app *application) GetAllPlatforms(writer http.ResponseWriter, reader *http.Request) {
 	platforms, err := app.shelf.GetAllPlatforms()
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 
 	err = app.writeJSON(writer, http.StatusOK, platforms, "platforms")
 	if err != nil {
-		app.errorJSON(writer, err)
+		app.errorJSON(writer, err, http.StatusBadRequest)
 		return
 	}
 }
