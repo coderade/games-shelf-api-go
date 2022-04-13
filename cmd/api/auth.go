@@ -11,7 +11,6 @@ import (
 	"github.com/pascaldekloe/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -20,8 +19,8 @@ func generatePasswordHash(password string) string {
 	return string(hashedPassword)
 }
 
-func generateJWTSecret() string {
-	secret := os.Getenv("APP_SECRET")
+func (app *application) generateJWTSecret() string {
+	secret := app.config.secret
 	data := "games-shelf-api"
 
 	// Create a new HMAC by defining the hash type and the key (as byte array)
@@ -66,7 +65,7 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 	claims.Issuer = "mydomain.com"
 	claims.Audiences = []string{"mydomain.com"}
 
-	appSecret := generateJWTSecret()
+	appSecret := app.generateJWTSecret()
 
 	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(appSecret))
 	app.writeJSON(writer, http.StatusOK, string(jwtBytes), "token")

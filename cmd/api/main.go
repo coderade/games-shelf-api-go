@@ -17,9 +17,10 @@ import (
 const version = "1.0.0"
 
 type config struct {
-	port int
-	env  string
-	db   struct {
+	port   int
+	env    string
+	secret string
+	db     struct {
 		dsn string
 	}
 }
@@ -42,6 +43,8 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production)")
 	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://admin@localhost/games_shelf?sslmode=disable", "Postgress Data Source")
 	flag.Parse()
+
+	cfg.secret = os.Getenv("APP_SECRET")
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
