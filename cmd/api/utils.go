@@ -31,5 +31,5 @@ func (app *application) errorJSON(writer http.ResponseWriter, err error, status 
 		Message: err.Error(),
 	}
 
-	app.writeJSON(writer, http.StatusBadRequest, e, "error")
+	app.writeJSON(writer, status, e, "error")
 }

@@ -65,8 +65,6 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 	claims.Issuer = "mydomain.com"
 	claims.Audiences = []string{"mydomain.com"}
 
-	appSecret := app.generateJWTSecret()
-
-	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(appSecret))
+	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(app.config.secret))
 	app.writeJSON(writer, http.StatusOK, string(jwtBytes), "token")
 }
