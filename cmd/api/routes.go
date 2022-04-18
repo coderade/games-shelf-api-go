@@ -34,5 +34,9 @@ func (app *application) routes() http.Handler {
 	router.DELETE("/v1/games/delete/:id", app.wrap(secure.ThenFunc(app.deleteGame)))
 	router.POST("/v1/games/add", app.wrap(secure.ThenFunc(app.addGame)))
 
+	// graphql routes
+	router.HandlerFunc(http.MethodPost, "/v1/graphql/list", app.gamesGraphQL)
+
 	return app.enableCORS(router)
+
 }

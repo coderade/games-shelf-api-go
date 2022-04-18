@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (app *application) getAllGenres(writer http.ResponseWriter, reader *http.Request) {
+func (app *application) getAllGenres(writer http.ResponseWriter, request *http.Request) {
 	genres, err := app.shelf.GetAllGenres()
 	if err != nil {
 		app.errorJSON(writer, err, http.StatusBadRequest)
