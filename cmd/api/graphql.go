@@ -8,12 +8,13 @@ import (
 	"github.com/graphql-go/graphql"
 	"io"
 	"net/http"
+	"strings"
 )
 
 var games []models.Game
 
 var graphQLFields = graphql.Fields{
-	"gamea": &graphql.Field{
+	"game": &graphql.Field{
 		Type:        gameType,
 		Description: "Get a game by the ID",
 		Args: graphql.FieldConfigArgument{
@@ -38,6 +39,27 @@ var graphQLFields = graphql.Fields{
 		Description: "Get all games",
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			return games, nil
+		},
+	},
+	"search": &graphql.Field{
+		Type:        graphql.NewList(gameType),
+		Description: "Search movies by title",
+		Args: graphql.FieldConfigArgument{
+			"titleContains": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+			var result []*models.Game
+			search, ok := params.Args["titleContains"].(string)
+			if ok {
+				for _, currentGame := range games {
+					if strings.Contains(currentGame.Title, search) {
+						result = append(result, &currentGame)
+					}
+				}
+			}
+			return result, nil
 		},
 	},
 }
