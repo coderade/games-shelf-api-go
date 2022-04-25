@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"games-shelf-api-go/cmd/api/service"
 	"games-shelf-api-go/cmd/api/utils"
 	"games-shelf-api-go/cmd/models"
 	"github.com/julienschmidt/httprouter"
@@ -134,6 +135,8 @@ func GetGame(shelf *models.Shelf, writer http.ResponseWriter, request *http.Requ
 	}
 
 	game, err := shelf.GetGameById(id)
+
+	game.RawgDetails = rawg_service.GetGameDetails(game.RawgId)
 
 	err = utils.WriteJson(writer, http.StatusOK, game, "game")
 

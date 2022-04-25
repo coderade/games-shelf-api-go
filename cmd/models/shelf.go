@@ -23,7 +23,7 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := `SELECT id, title, description, year, publisher, rating, created_at, updated_at 
+	query := `SELECT id, title, description, year, publisher, rawg_id, created_at, updated_at 
 			FROM games WHERE id = $1`
 
 	row := shelf.DB.QueryRowContext(ctx, query, id)
@@ -35,7 +35,7 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 		&game.Description,
 		&game.Year,
 		&game.Publisher,
-		&game.Rating,
+		&game.RawgId,
 		&game.CreatedAt,
 		&game.UpdatedAt,
 	)
