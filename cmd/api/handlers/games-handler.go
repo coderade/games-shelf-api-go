@@ -1,8 +1,9 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"errors"
+	"games-shelf-api-go/cmd/api/utils"
 	"games-shelf-api-go/cmd/models"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
@@ -23,12 +24,12 @@ type GamePayload struct {
 	Rating      string `json:"rating"`
 }
 
-func (app *application) addGame(writer http.ResponseWriter, request *http.Request) {
+func AddGame(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
 
 	var payload GamePayload
 	err := json.NewDecoder(request.Body).Decode(&payload)
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -42,30 +43,30 @@ func (app *application) addGame(writer http.ResponseWriter, request *http.Reques
 	game.CreatedAt = time.Now()
 	game.UpdatedAt = time.Now()
 
-	err = app.shelf.AddGame(game)
+	err = shelf.AddGame(game)
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
 	res := response{Ok: true}
 
-	err = app.writeJSON(writer, http.StatusOK, res, "response")
+	err = utils.WriteJson(writer, http.StatusOK, res, "response")
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
 }
 
-func (app *application) editGame(writer http.ResponseWriter, request *http.Request) {
+func EditGame(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
 
 	var payload GamePayload
 	err := json.NewDecoder(request.Body).Decode(&payload)
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
@@ -79,82 +80,82 @@ func (app *application) editGame(writer http.ResponseWriter, request *http.Reque
 	game.CreatedAt = time.Now()
 	game.UpdatedAt = time.Now()
 
-	err = app.shelf.EditGame(game)
+	err = shelf.EditGame(game)
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
 	res := response{Ok: true}
 
-	err = app.writeJSON(writer, http.StatusOK, res, "response")
+	err = utils.WriteJson(writer, http.StatusOK, res, "response")
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
 }
 
-func (app *application) deleteGame(writer http.ResponseWriter, request *http.Request) {
+func DeleteGame(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
 	params := httprouter.ParamsFromContext(request.Context())
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
-		app.logger.Println(errors.New("invalid id parameter"))
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		println(errors.New("invalid id parameter"))
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
-	err = app.shelf.DeleteGame(id)
+	err = shelf.DeleteGame(id)
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
 	res := response{Ok: true}
 
-	err = app.writeJSON(writer, http.StatusOK, res, "response")
+	err = utils.WriteJson(writer, http.StatusOK, res, "response")
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 }
 
-func (app *application) getGame(writer http.ResponseWriter, request *http.Request) {
+func GetGame(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
 	params := httprouter.ParamsFromContext(request.Context())
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
-		app.logger.Println(errors.New("invalid id parameter"))
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		println(errors.New("invalid id parameter"))
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
-	game, err := app.shelf.GetGameById(id)
+	game, err := shelf.GetGameById(id)
 
-	err = app.writeJSON(writer, http.StatusOK, game, "game")
+	err = utils.WriteJson(writer, http.StatusOK, game, "game")
 
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 }
 
-func (app *application) getAllGames(writer http.ResponseWriter, request *http.Request) {
+func GetAllGames(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
 	queryValues := request.URL.Query()
 	genreId, err := strconv.Atoi(queryValues.Get("genre_id"))
 	platformId, err := strconv.Atoi(queryValues.Get("platform_id"))
-	games, err := app.shelf.GetAllGames(genreId, platformId)
+	games, err := shelf.GetAllGames(genreId, platformId)
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 
-	err = app.writeJSON(writer, http.StatusOK, games, "games")
+	err = utils.WriteJson(writer, http.StatusOK, games, "games")
 	if err != nil {
-		app.errorJSON(writer, err, http.StatusBadRequest)
+		utils.WriteErrorJson(writer, err, http.StatusBadRequest)
 		return
 	}
 }

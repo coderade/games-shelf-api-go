@@ -1,20 +1,29 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
 )
 
-func (app *application) statusHandler(writer http.ResponseWriter, reader *http.Request) {
+type AppStatus struct {
+	Status      string `json:"status"`
+	Environment string `json:"environment"`
+	Version     string `json:"version"`
+}
+
+const version = "1.0.0"
+
+func StatusHandler(writer http.ResponseWriter, reader *http.Request) {
+
 	currentStatus := AppStatus{
 		Status:      "Available",
-		Environment: app.config.env,
+		Environment: cnf.Env,
 		Version:     version,
 	}
 
 	j, err := json.MarshalIndent(currentStatus, "", "\t")
 	if err != nil {
-		app.logger.Println(err)
+		println(err)
 	}
 
 	writer.Header().Set("Content-Type", "application/json")
@@ -22,6 +31,6 @@ func (app *application) statusHandler(writer http.ResponseWriter, reader *http.R
 
 	_, err = writer.Write(j)
 	if err != nil {
-		app.logger.Println(err)
+		println(err)
 	}
 }

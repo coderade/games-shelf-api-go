@@ -1,7 +1,8 @@
-package main
+package api
 
 import (
 	"errors"
+	"games-shelf-api-go/cmd/api/utils"
 	"github.com/pascaldekloe/jwt"
 	"log"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-func (app *application) enableCORS(next http.Handler) http.Handler {
+func (api *Server) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("Access-Control-Allow-Origin", "*")
 		writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
@@ -20,50 +21,50 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) validateJWTToken(next http.Handler) http.Handler {
+func (api *Server) validateJWTToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Add("Vary", "Authorization")
 		authHeader := request.Header.Get("Authorization")
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 {
-			app.errorJSON(writer, errors.New("invalid Auth Header"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("invalid Auth Header"), http.StatusUnauthorized)
 			return
 		}
 
 		if headerParts[0] != "Bearer" {
-			app.errorJSON(writer, errors.New("unauthorized - no Bearer"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("unauthorized - no Bearer"), http.StatusUnauthorized)
 			return
 		}
 
 		token := headerParts[1]
 
-		claims, err := jwt.HMACCheck([]byte(token), []byte(app.config.secret))
+		claims, err := jwt.HMACCheck([]byte(token), []byte(api.Config.Secret))
 
 		if err != nil {
-			app.errorJSON(writer, errors.New("unauthorized - Failed hmac check"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("unauthorized - Failed hmac check"), http.StatusUnauthorized)
 			return
 		}
 
 		if !claims.Valid(time.Now()) {
-			app.errorJSON(writer, errors.New("unauthorized - Token expired"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("unauthorized - Token expired"), http.StatusUnauthorized)
 			return
 		}
 
 		if !claims.AcceptAudience("mydomain.com") {
-			app.errorJSON(writer, errors.New("unauthorized - Invalid Audience"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("unauthorized - Invalid Audience"), http.StatusUnauthorized)
 			return
 		}
 
 		if claims.Issuer != "mydomain.com" {
-			app.errorJSON(writer, errors.New("unauthorized - Invalid Issuer"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("unauthorized - Invalid Issuer"), http.StatusUnauthorized)
 			return
 		}
 
 		userID, err := strconv.ParseInt(claims.Subject, 10, 64)
 
 		if err != nil {
-			app.errorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
+			utils.WriteErrorJson(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 			return
 		}
 

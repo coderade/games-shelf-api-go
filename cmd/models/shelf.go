@@ -12,8 +12,8 @@ type Shelf struct {
 	DB *sql.DB
 }
 
-func NewShelf(db *sql.DB) Shelf {
-	return Shelf{
+func NewShelf(db *sql.DB) *Shelf {
+	return &Shelf{
 		DB: db,
 	}
 }

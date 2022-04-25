@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"crypto/hmac"
@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"games-shelf-api-go/cmd/api/utils"
 	"games-shelf-api-go/cmd/models"
 	"github.com/pascaldekloe/jwt"
 	"golang.org/x/crypto/bcrypt"
@@ -19,8 +20,8 @@ func generatePasswordHash(password string) string {
 	return string(hashedPassword)
 }
 
-func (app *application) generateJWTSecret() string {
-	secret := app.config.secret
+func generateJWTSecret() string {
+	secret := cnf.Secret
 	data := "games-shelf-api"
 
 	// Create a new HMAC by defining the hash type and the key (as byte array)
@@ -37,14 +38,14 @@ func (app *application) generateJWTSecret() string {
 
 var validUser = models.User{ID: 1, Email: "me@here.com", Password: generatePasswordHash("password")}
 
-func (app *application) SignIn(writer http.ResponseWriter, request *http.Request) {
+func SignIn(writer http.ResponseWriter, request *http.Request) {
 	var credentials models.Credentials
 
 	err := json.NewDecoder(request.Body).Decode(&credentials)
 
 	if err != nil {
-		app.logger.Println(errors.New("error decoding credentials"))
-		app.errorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
+		println(errors.New("error decoding credentials"))
+		utils.WriteErrorJson(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
@@ -52,8 +53,8 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(credentials.Password))
 	if err != nil {
-		app.logger.Println(errors.New("unauthorized"))
-		app.errorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
+		println(errors.New("unauthorized"))
+		utils.WriteErrorJson(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
@@ -65,8 +66,8 @@ func (app *application) SignIn(writer http.ResponseWriter, request *http.Request
 	claims.Issuer = "mydomain.com"
 	claims.Audiences = []string{"mydomain.com"}
 
-	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(app.config.secret))
+	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(cnf.Secret))
 
 	token := string(jwtBytes)
-	app.writeJSON(writer, http.StatusOK, token, "token")
+	utils.WriteJson(writer, http.StatusOK, token, "token")
 }

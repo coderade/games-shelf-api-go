@@ -1,9 +1,10 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"games-shelf-api-go/cmd/api/utils"
 	"games-shelf-api-go/cmd/models"
 	"github.com/graphql-go/graphql"
 	"io"
@@ -89,31 +90,31 @@ var gameType = graphql.NewObject(
 		},
 	})
 
-func (app *application) gamesGraphQL(writer http.ResponseWriter, request *http.Request) {
-	games, _ = app.shelf.GetAllGames(0, 0)
+func GamesGraphQL(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
+	games, _ = shelf.GetAllGames(0, 0)
 
 	q, err := io.ReadAll(request.Body)
 	if err != nil {
-		app.errorJSON(writer, err)
+		utils.WriteErrorJson(writer, err)
 		return
 	}
 	query := string(q)
-	app.logger.Println(query)
+	println(query)
 
 	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: graphQLFields}
 	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
 	schema, err := graphql.NewSchema(schemaConfig)
 
 	if err != nil {
-		app.logger.Println(err)
-		app.errorJSON(writer, errors.New("failed to create the graphQL schema"))
+		println(err)
+		utils.WriteErrorJson(writer, errors.New("failed to create the graphQL schema"))
 		return
 	}
 
 	params := graphql.Params{Schema: schema, RequestString: query}
 	resp := graphql.Do(params)
 	if len(resp.Errors) > 0 {
-		app.errorJSON(writer, errors.New(fmt.Sprintf("failed: %+v", resp.Errors)))
+		utils.WriteErrorJson(writer, errors.New(fmt.Sprintf("failed: %+v", resp.Errors)))
 	}
 
 	js, _ := json.MarshalIndent(resp.Data, "", " ")
