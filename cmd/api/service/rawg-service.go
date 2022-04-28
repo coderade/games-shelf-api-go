@@ -10,14 +10,14 @@ import (
 )
 
 type GameResult struct {
-	ID              int    `json:"id"`
-	Slug            string `json:"slug"`
-	Description     string `json:"description"`
-	Metacritic      int    `json:"metacritic"`
-	MetacriticUrl   string `json:"metacritic_url"`
-	BackgroundImage string `json:"background_image"`
-	Publisher       string `json:"publisher"`
-	Rating          int    `json:"rating"`
+	ID              int     `json:"id"`
+	Slug            string  `json:"slug"`
+	Description     string  `json:"description"`
+	Metacritic      int     `json:"metacritic"`
+	MetacriticUrl   string  `json:"metacritic_url"`
+	BackgroundImage string  `json:"background_image"`
+	Publisher       string  `json:"publisher"`
+	Rating          float32 `json:"rating"`
 }
 
 var RawgApiEndpoint = "https://api.rawg.io/api"
@@ -43,9 +43,12 @@ func doRequest(path string) GameResult {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-	json.Unmarshal(body, &gameResult)
 	if err != nil {
-		log.Fatalln(err)
+		return GameResult{}
+	}
+	err = json.Unmarshal(body, &gameResult)
+	if err != nil {
+		log.Println(err.Error())
 	}
 
 	return gameResult

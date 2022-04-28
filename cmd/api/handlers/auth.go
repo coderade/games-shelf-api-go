@@ -36,7 +36,11 @@ func generateJWTSecret() string {
 	return sha
 }
 
-var validUser = models.User{ID: 1, Email: "me@here.com", Password: generatePasswordHash("password")}
+var validUser = models.User{
+	ID:       1,
+	Email:    "me@here.com",
+	Password: generatePasswordHash("pass"),
+}
 
 func SignIn(writer http.ResponseWriter, request *http.Request) {
 	var credentials models.Credentials
@@ -66,7 +70,7 @@ func SignIn(writer http.ResponseWriter, request *http.Request) {
 	claims.Issuer = "mydomain.com"
 	claims.Audiences = []string{"mydomain.com"}
 
-	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(cnf.Secret))
+	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(generateJWTSecret()))
 
 	token := string(jwtBytes)
 	utils.WriteJson(writer, http.StatusOK, token, "token")

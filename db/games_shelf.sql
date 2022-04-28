@@ -94,6 +94,7 @@ CREATE TABLE public.games
     year        integer,
     publisher   character varying,
     rawg_id      integer,
+    rating integer,
     created_at  timestamp without time zone,
     updated_at  timestamp without time zone
 );
@@ -246,21 +247,21 @@ VALUES (1, 'Nintendo 64', '2022-04-04 00:00:00', 5, '2022-04-04 00:00:00'),
 -- Data for Name: games; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.games (id, title, description, year, publisher, rawg_id,  created_at, updated_at)
+INSERT INTO public.games (id, title, description, year, publisher, rawg_id, rating, created_at, updated_at)
 VALUES (1, 'The legend of Zelda: Ocarina of Time', 'The Legend of Zelda: Ocarina of Time is a fantasy action-adventure ' ||
                                                    'game set in an expansive environment. The player controls series ' ||
                                                    'protagonist Link from a third-person perspective in a three-dimensional world',
-        1998, 'Nintendo', 25097, '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
+        1998, 'Nintendo', 25097, 99, '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
        (2, 'Donkey Kong Country',
         'Donkey Kong Country is a side-scrolling platform game in which the player must complete 40 levels to recover ' ||
-        'the Kongs banana hoard, which has been stolen by the crocodilian Kremlings',1994, 'Nintendo', 85,
+        'the Kongs banana hoard, which has been stolen by the crocodilian Kremlings',1994, 'Nintendo', 85, 90,
         '2022-04-04 00:00:00', '2022-04-04 00:00:00'),
        (3, 'Tony Hawks Pro Skater 2', 'Tony Hawks Pro Skater 2 is a skateboarding video game developed by Neversoft ' ||
-                                      'and published by Activision.', 2000, 'Activision', 57944, '2022-04-04 00:00:00',
+                                      'and published by Activision.', 2000, 'Activision', 57944, 90 , '2022-04-04 00:00:00',
         '2022-04-04 00:00:00'),
        (4, 'Sonic the Hedgehog', 'Sonic the Hedgehog is a platform video game developed by Sonic Team and published ' ||
                                  'by Sega for the Sega Genesis home video game console. The first game in the Sonic ' ||
-                                 'the Hedgehog franchise',  1991, 'Sega', 53551, '2022-04-04 00:00:00', '2022-04-04 00:00:00');
+                                 'the Hedgehog franchise',  1991, 'Sega', 53551, 92, '2022-04-04 00:00:00', '2022-04-04 00:00:00');
 
 --
 -- Name: genres genres_pkey; Type: CONSTRAINT; Schema: public; Owner: -

@@ -19,6 +19,7 @@ func main() {
 	flag.StringVar(&cfg.Env, "env", "development", "Application environment (development|production)")
 	flag.StringVar(&cfg.Db.Dsn, "dsn", "postgres://admin@localhost/games_shelf?sslmode=disable", "Postgres Data Source")
 	flag.Parse()
+
 	cfg.Secret = os.Getenv("APP_SECRET")
 	fmt.Println("Running")
 
