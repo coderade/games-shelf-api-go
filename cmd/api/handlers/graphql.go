@@ -51,15 +51,18 @@ var graphQLFields = graphql.Fields{
 			},
 		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			var result []*models.Game
+			var result []models.Game
+			var gameFound models.Game
 			search, ok := params.Args["titleContains"].(string)
 			if ok {
 				for _, currentGame := range games {
 					if strings.Contains(currentGame.Title, search) {
-						result = append(result, &currentGame)
+						gameFound = currentGame
+						result = append(result, gameFound)
 					}
 				}
 			}
+
 			return result, nil
 		},
 	},
