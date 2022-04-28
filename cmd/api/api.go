@@ -15,18 +15,30 @@ type Server struct {
 	Shelf  *models.Shelf
 }
 
-func (api *Server) Initialize(cfg config.Config) {
+func (api *Server) Initialize() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	db, err := openDBConnection(cfg)
+	api.Config = getConfigVariables()
+	db, err := openDBConnection(api.Config)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	config.SetConfig(cfg)
 	api.Shelf = models.NewShelf(db)
 
+}
+
+func getConfigVariables() config.Config {
+	var cfg config.Config
+
+	cfg.Port = getEnv("PORT", "4000")      // Server port to list on
+	cfg.Env = getEnv("ENV", "development") // Application environment (development|production)
+	cfg.Db.Dsn = getEnv("DB_DATA_SOURCE",
+		"postgres://admin@localhost/games_shelf?sslmode=disable") // Postgres Data Source
+	cfg.Secret = getEnv("APP_SECRET", "games-shelf-api-secret") // Application secret
+	config.SetConfig(cfg)
+	return cfg
 }
 
 func openDBConnection(cfg config.Config) (*sql.DB, error) {
@@ -47,4 +59,12 @@ func openDBConnection(cfg config.Config) (*sql.DB, error) {
 
 	return db, nil
 
+}
+
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return defaultValue
+	}
+	return value
 }
