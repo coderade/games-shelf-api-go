@@ -11,6 +11,7 @@ type Config struct {
 	Db       DatabaseConfig
 	Secret   string
 	LogLevel string
+	Rawg     RawgConfig
 }
 
 type DatabaseConfig struct {
@@ -30,6 +31,7 @@ func LoadConfig() *Config {
 		Db:       DatabaseConfig{Dsn: dbDsn},
 		Secret:   secret,
 		LogLevel: logLevel,
+		Rawg:     LoadRawgConfig(),
 	}
 }
 

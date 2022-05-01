@@ -4,6 +4,7 @@ import (
 	"context"
 	"games-shelf-api-go/internal/api/handlers"
 	"games-shelf-api-go/internal/models"
+	rawgservice "games-shelf-api-go/internal/service"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -21,14 +22,20 @@ func (s *Server) Routes() http.Handler {
 
 	router := httprouter.New()
 	secure := alice.New(s.validateJWTToken)
+	rawgService := rawgservice.NewRawgService(s.Config.Rawg, s.Logger)
 
 	router.HandlerFunc(http.MethodGet, "/status", func(w http.ResponseWriter, r *http.Request) {
 		handlers.StatusHandler(w, r, s.Config)
 	})
 
 	// public routes
+	// /v1/games
 	router.HandlerFunc(http.MethodGet, "/v1/games", s.handleRequest(handlers.GetAllGames))
-	router.HandlerFunc(http.MethodGet, "/v1/games/:id", s.handleRequest(handlers.GetGame))
+
+	router.HandlerFunc(http.MethodGet, "/v1/games/:id", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetGame(s.Shelf, rawgService, w, r)
+	})
+
 	router.HandlerFunc(http.MethodGet, "/v1/genres", s.handleRequest(handlers.GetAllGenres))
 	router.HandlerFunc(http.MethodGet, "/v1/platforms", s.handleRequest(handlers.GetAllPlatforms))
 
