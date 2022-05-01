@@ -7,6 +7,6 @@ type User struct {
 }
 
 type Credentials struct {
-	Username string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }

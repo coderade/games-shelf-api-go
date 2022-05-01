@@ -10,6 +10,7 @@ import (
 	"games-shelf-api-go/internal/config"
 	"games-shelf-api-go/internal/models"
 	"games-shelf-api-go/internal/utils"
+	"log"
 	"net/http"
 	"time"
 
@@ -17,63 +18,92 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// generatePasswordHash hashes the password using bcrypt.
 func generatePasswordHash(password string) string {
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 12)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("Failed to hash password: %v", err)
+	}
 	return string(hashedPassword)
 }
 
+// generateJWTSecret creates a JWT secret using HMAC with SHA256.
 func generateJWTSecret(cfg *config.Config) string {
 	secret := cfg.Secret
 	data := "games-shelf-api"
 
-	// Create a new HMAC by defining the hash type and the key (as byte array)
 	h := hmac.New(sha256.New, []byte(secret))
-
-	// Write Data to it
 	h.Write([]byte(data))
-
-	// Get result and encode as hexadecimal string
 	sha := hex.EncodeToString(h.Sum(nil))
 
 	return sha
 }
 
-var validUser = models.User{
-	ID:       1,
-	Email:    "me@here.com",
-	Password: generatePasswordHash("pass"),
-}
-
+// SignIn handles user sign-in and generates a JWT token if authentication is successful.
 func SignIn(writer http.ResponseWriter, request *http.Request, cfg *config.Config) {
 	var credentials models.Credentials
 
+	// Decode credentials from request body
 	err := json.NewDecoder(request.Body).Decode(&credentials)
-
 	if err != nil {
-		println(errors.New("error decoding credentials"))
+		log.Printf("Error decoding credentials: %v", err)
+		utils.WriteErrorJson(writer, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	// Validate user credentials
+	user, err := validateUser(credentials)
+	if err != nil {
+		log.Printf("Authentication failed: %v", err)
 		utils.WriteErrorJson(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
-	hashedPassword := validUser.Password
-
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(credentials.Password))
+	// Generate JWT token
+	token, err := generateJWT(user.ID, cfg)
 	if err != nil {
-		println(errors.New("unauthorized"))
-		utils.WriteErrorJson(writer, errors.New("unauthorized"), http.StatusUnauthorized)
+		log.Printf("Error generating JWT: %v", err)
+		utils.WriteErrorJson(writer, errors.New("internal server error"), http.StatusInternalServerError)
 		return
 	}
 
+	utils.WriteJson(writer, http.StatusOK, token, "token")
+}
+
+// validateUser checks if the provided credentials are valid.
+func validateUser(credentials models.Credentials) (*models.User, error) {
+	// For simplicity, I am using a hardcoded valid user. In production, fetch from a database.
+	validUser := models.User{
+		ID:       1,
+		Email:    "me@here.com",
+		Password: generatePasswordHash("pass"),
+	}
+
+	if credentials.Email != validUser.Email {
+		return nil, errors.New("user not found")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(validUser.Password), []byte(credentials.Password)); err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	return &validUser, nil
+}
+
+// generateJWT generates a JWT token for the authenticated user.
+func generateJWT(userID int, cfg *config.Config) (string, error) {
 	var claims jwt.Claims
-	claims.Subject = fmt.Sprint(validUser.ID)
+	claims.Subject = fmt.Sprint(userID)
 	claims.Issued = jwt.NewNumericTime(time.Now())
 	claims.NotBefore = jwt.NewNumericTime(time.Now())
 	claims.Expires = jwt.NewNumericTime(time.Now().Add(24 * time.Hour))
 	claims.Issuer = "mydomain.com"
 	claims.Audiences = []string{"mydomain.com"}
 
-	jwtBytes, _ := claims.HMACSign(jwt.HS256, []byte(generateJWTSecret(cfg)))
+	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(generateJWTSecret(cfg)))
+	if err != nil {
+		return "", err
+	}
 
-	token := string(jwtBytes)
-	utils.WriteJson(writer, http.StatusOK, token, "token")
+	return string(jwtBytes), nil
 }
