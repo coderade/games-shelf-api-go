@@ -4,50 +4,55 @@ import (
 	"context"
 	"games-shelf-api-go/internal/api/handlers"
 	"games-shelf-api-go/internal/models"
+	"net/http"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-	"net/http"
 )
 
-func (api *Server) wrap(next http.Handler) httprouter.Handle {
+func (s *Server) wrap(next http.Handler) httprouter.Handle {
 	return func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		ctx := context.WithValue(request.Context(), "params", params)
 		next.ServeHTTP(writer, request.WithContext(ctx))
 	}
 }
 
-func (api *Server) Routes() http.Handler {
+func (s *Server) Routes() http.Handler {
 
 	router := httprouter.New()
-	secure := alice.New(api.validateJWTToken)
+	secure := alice.New(s.validateJWTToken)
 
-	router.HandlerFunc(http.MethodGet, "/status", handlers.StatusHandler)
+	router.HandlerFunc(http.MethodGet, "/status", func(w http.ResponseWriter, r *http.Request) {
+		handlers.StatusHandler(w, r, s.Config)
+	})
 
 	// public routes
-	router.HandlerFunc(http.MethodGet, "/v1/games", api.handleRequest(handlers.GetAllGames))
-	router.HandlerFunc(http.MethodGet, "/v1/games/:id", api.handleRequest(handlers.GetGame))
-	router.HandlerFunc(http.MethodGet, "/v1/genres", api.handleRequest(handlers.GetAllGenres))
-	router.HandlerFunc(http.MethodGet, "/v1/platforms", api.handleRequest(handlers.GetAllPlatforms))
+	router.HandlerFunc(http.MethodGet, "/v1/games", s.handleRequest(handlers.GetAllGames))
+	router.HandlerFunc(http.MethodGet, "/v1/games/:id", s.handleRequest(handlers.GetGame))
+	router.HandlerFunc(http.MethodGet, "/v1/genres", s.handleRequest(handlers.GetAllGenres))
+	router.HandlerFunc(http.MethodGet, "/v1/platforms", s.handleRequest(handlers.GetAllPlatforms))
 
 	//auth routes
-	router.HandlerFunc(http.MethodPost, "/v1/auth/signin", handlers.SignIn)
+	router.HandlerFunc(http.MethodPost, "/v1/auth/signin", func(w http.ResponseWriter, r *http.Request) {
+		handlers.SignIn(w, r, s.Config)
+	})
 
 	// private routes
-	router.PUT("/v1/games/edit/:id", api.wrap(secure.ThenFunc(api.handleRequest(handlers.EditGame))))
-	router.DELETE("/v1/games/delete/:id", api.wrap(secure.ThenFunc(api.handleRequest(handlers.DeleteGame))))
-	router.POST("/v1/games/add", api.wrap(secure.ThenFunc(api.handleRequest(handlers.AddGame))))
+	router.PUT("/v1/games/edit/:id", s.wrap(secure.ThenFunc(s.handleRequest(handlers.EditGame))))
+	router.DELETE("/v1/games/delete/:id", s.wrap(secure.ThenFunc(s.handleRequest(handlers.DeleteGame))))
+	router.POST("/v1/games/add", s.wrap(secure.ThenFunc(s.handleRequest(handlers.AddGame))))
 
 	// graphql routes
-	router.HandlerFunc(http.MethodPost, "/v1/graphql", api.handleRequest(handlers.GamesGraphQL))
+	router.HandlerFunc(http.MethodPost, "/v1/graphql", s.handleRequest(handlers.GamesGraphQL))
 
-	return api.enableCORS(router)
+	return s.enableCORS(router)
 
 }
 
 type RequestHandlerFunction func(shelf *models.Shelf, w http.ResponseWriter, r *http.Request)
 
-func (api *Server) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
+func (s *Server) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		handler(api.Shelf, w, r)
+		handler(s.Shelf, w, r)
 	}
 }

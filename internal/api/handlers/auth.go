@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"games-shelf-api-go/internal/config"
 	"games-shelf-api-go/internal/models"
 	"games-shelf-api-go/internal/utils"
 	"net/http"
@@ -21,8 +22,8 @@ func generatePasswordHash(password string) string {
 	return string(hashedPassword)
 }
 
-func generateJWTSecret() string {
-	secret := cnf.Secret
+func generateJWTSecret(cfg *config.Config) string {
+	secret := cfg.Secret
 	data := "games-shelf-api"
 
 	// Create a new HMAC by defining the hash type and the key (as byte array)
@@ -43,7 +44,7 @@ var validUser = models.User{
 	Password: generatePasswordHash("pass"),
 }
 
-func SignIn(writer http.ResponseWriter, request *http.Request) {
+func SignIn(writer http.ResponseWriter, request *http.Request, cfg *config.Config) {
 	var credentials models.Credentials
 
 	err := json.NewDecoder(request.Body).Decode(&credentials)
@@ -71,7 +72,7 @@ func SignIn(writer http.ResponseWriter, request *http.Request) {
 	claims.Issuer = "mydomain.com"
 	claims.Audiences = []string{"mydomain.com"}
 
-	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(generateJWTSecret()))
+	jwtBytes, _ := claims.HMACSign(jwt.HS256, []byte(generateJWTSecret(cfg)))
 
 	token := string(jwtBytes)
 	utils.WriteJson(writer, http.StatusOK, token, "token")

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"games-shelf-api-go/internal/config"
 	"net/http"
 )
 
@@ -13,11 +14,11 @@ type AppStatus struct {
 
 const version = "1.0.0"
 
-func StatusHandler(writer http.ResponseWriter, reader *http.Request) {
+func StatusHandler(writer http.ResponseWriter, reader *http.Request, cfg *config.Config) {
 
 	currentStatus := AppStatus{
 		Status:      "Available",
-		Environment: cnf.Env,
+		Environment: cfg.Env,
 		Version:     version,
 	}
 

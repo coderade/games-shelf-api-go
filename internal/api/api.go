@@ -4,47 +4,33 @@ import (
 	"context"
 	"database/sql"
 	"games-shelf-api-go/internal/config"
+	"games-shelf-api-go/internal/logger"
 	"games-shelf-api-go/internal/models"
-	"log"
-	"os"
 	"time"
 )
 
 type Server struct {
-	Config config.Config
+	Config *config.Config
 	Shelf  *models.Shelf
+	Logger *logger.Logger
 }
 
-func (api *Server) Initialize() {
+func (s *Server) Initialize(cfg *config.Config, log *logger.Logger) {
+	s.Config = cfg
+	s.Logger = log
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-
-	api.Config = getConfigVariables()
-	db, err := openDBConnection(api.Config)
+	// Initialize DB and other services here
+	db, err := openDBConnection(cfg, log)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
-
-	api.Shelf = models.NewShelf(db)
-
+	s.Shelf = models.NewShelf(db)
 }
 
-func getConfigVariables() config.Config {
-	var cfg config.Config
-
-	cfg.Port = getEnv("PORT", "4000")      // Server port to list on
-	cfg.Env = getEnv("ENV", "development") // Application environment (development|production)
-	cfg.Db.Dsn = getEnv("DB_DATA_SOURCE",
-		"postgres://admin@localhost/games_shelf?sslmode=disable") // Postgres Data Source
-	cfg.Secret = getEnv("APP_SECRET", "games-shelf-api-secret") // Application secret
-	config.SetConfig(cfg)
-	return cfg
-}
-
-func openDBConnection(cfg config.Config) (*sql.DB, error) {
+func openDBConnection(cfg *config.Config, log *logger.Logger) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.Db.Dsn)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -53,18 +39,9 @@ func openDBConnection(cfg config.Config) (*sql.DB, error) {
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return nil, err
 	}
 
 	return db, nil
-
-}
-
-func getEnv(key, defaultValue string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return defaultValue
-	}
-	return value
 }
