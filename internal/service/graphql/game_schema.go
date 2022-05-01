@@ -1,19 +1,38 @@
-package handlers
+package graphql
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
 	"games-shelf-api-go/internal/models"
-	"games-shelf-api-go/internal/utils"
-	"io"
-	"net/http"
 	"strings"
 
 	"github.com/graphql-go/graphql"
 )
 
 var games []models.Game
+
+var gameType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "Game",
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"title": &graphql.Field{
+				Type: graphql.String,
+			},
+			"description": &graphql.Field{
+				Type: graphql.String,
+			},
+			"year": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"publisher": &graphql.Field{
+				Type: graphql.String,
+			},
+			"rating": &graphql.Field{
+				Type: graphql.Int,
+			},
+		},
+	})
 
 var graphQLFields = graphql.Fields{
 	"game": &graphql.Field{
@@ -45,7 +64,7 @@ var graphQLFields = graphql.Fields{
 	},
 	"search": &graphql.Field{
 		Type:        graphql.NewList(gameType),
-		Description: "Search movies by title",
+		Description: "Search games by title",
 		Args: graphql.FieldConfigArgument{
 			"titleContains": &graphql.ArgumentConfig{
 				Type: graphql.String,
@@ -69,62 +88,15 @@ var graphQLFields = graphql.Fields{
 	},
 }
 
-var gameType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "Game",
-		Fields: graphql.Fields{
-			"id": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"title": &graphql.Field{
-				Type: graphql.String,
-			},
-			"description": &graphql.Field{
-				Type: graphql.String,
-			},
-			"year": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"publisher": &graphql.Field{
-				Type: graphql.String,
-			},
-			"rating": &graphql.Field{
-				Type: graphql.Int,
-			},
-		},
-	})
-
-func GamesGraphQL(shelf *models.Shelf, writer http.ResponseWriter, request *http.Request) {
-	games, _ = shelf.GetAllGames(0, 0)
-
-	q, err := io.ReadAll(request.Body)
+// NewSchema creates a new GraphQL schema for games
+func NewSchema(shelf *models.Shelf) (graphql.Schema, error) {
+	var err error
+	games, err = shelf.GetAllGames(0, 0)
 	if err != nil {
-		utils.WriteErrorJson(writer, err)
-		return
+		return graphql.Schema{}, err
 	}
-	query := string(q)
-	println(query)
 
 	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: graphQLFields}
 	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
-	schema, err := graphql.NewSchema(schemaConfig)
-
-	if err != nil {
-		println(err)
-		utils.WriteErrorJson(writer, errors.New("failed to create the graphQL schema"))
-		return
-	}
-
-	params := graphql.Params{Schema: schema, RequestString: query}
-	resp := graphql.Do(params)
-	if len(resp.Errors) > 0 {
-		utils.WriteErrorJson(writer, errors.New(fmt.Sprintf("failed: %+v", resp.Errors)))
-	}
-
-	js, _ := json.MarshalIndent(resp.Data, "", " ")
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusOK)
-
-	_, err = writer.Write(js)
-
+	return graphql.NewSchema(schemaConfig)
 }

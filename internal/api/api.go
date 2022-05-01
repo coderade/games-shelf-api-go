@@ -19,7 +19,6 @@ func (s *Server) Initialize(cfg *config.Config, log *logger.Logger) {
 	s.Config = cfg
 	s.Logger = log
 
-	// Initialize DB and other services here
 	db, err := openDBConnection(cfg, log)
 	if err != nil {
 		log.Fatal(err)
