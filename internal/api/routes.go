@@ -2,8 +2,8 @@ package api
 
 import (
 	"context"
-	"games-shelf-api-go/cmd/api/handlers"
-	"games-shelf-api-go/cmd/models"
+	"games-shelf-api-go/internal/api/handlers"
+	"games-shelf-api-go/internal/models"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 	"net/http"

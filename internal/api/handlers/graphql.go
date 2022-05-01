@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"games-shelf-api-go/cmd/api/utils"
-	"games-shelf-api-go/cmd/models"
-	"github.com/graphql-go/graphql"
+	"games-shelf-api-go/internal/models"
+	"games-shelf-api-go/internal/utils"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/graphql-go/graphql"
 )
 
 var games []models.Game

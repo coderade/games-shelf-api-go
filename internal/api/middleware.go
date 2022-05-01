@@ -2,13 +2,14 @@ package api
 
 import (
 	"errors"
-	"games-shelf-api-go/cmd/api/utils"
-	"github.com/pascaldekloe/jwt"
+	"games-shelf-api-go/internal/utils"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pascaldekloe/jwt"
 )
 
 func (api *Server) enableCORS(next http.Handler) http.Handler {

@@ -1,7 +1,7 @@
 package models
 
 import (
-	rawgservice "games-shelf-api-go/cmd/api/service"
+	rawgservice "games-shelf-api-go/internal/service"
 	"time"
 )
 

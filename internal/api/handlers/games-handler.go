@@ -3,13 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"games-shelf-api-go/cmd/api/service"
-	"games-shelf-api-go/cmd/api/utils"
-	"games-shelf-api-go/cmd/models"
-	"github.com/julienschmidt/httprouter"
+	"games-shelf-api-go/internal/models"
+	rawg_service "games-shelf-api-go/internal/service"
+	"games-shelf-api-go/internal/utils"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type response struct {

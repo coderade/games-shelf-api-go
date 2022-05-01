@@ -7,12 +7,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"games-shelf-api-go/cmd/api/utils"
-	"games-shelf-api-go/cmd/models"
-	"github.com/pascaldekloe/jwt"
-	"golang.org/x/crypto/bcrypt"
+	"games-shelf-api-go/internal/models"
+	"games-shelf-api-go/internal/utils"
 	"net/http"
 	"time"
+
+	"github.com/pascaldekloe/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func generatePasswordHash(password string) string {

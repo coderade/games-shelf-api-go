@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"games-shelf-api-go/cmd/api/utils"
-	"games-shelf-api-go/cmd/models"
+	"games-shelf-api-go/internal/models"
+	"games-shelf-api-go/internal/utils"
 	"net/http"
 )
 

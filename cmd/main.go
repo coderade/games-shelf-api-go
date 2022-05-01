@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"games-shelf-api-go/cmd/api"
+	"games-shelf-api-go/internal/api"
 	"net/http"
 	"time"
 

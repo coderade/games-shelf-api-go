@@ -1,5 +1,5 @@
 package handlers
 
-import "games-shelf-api-go/cmd/config"
+import "games-shelf-api-go/internal/config"
 
 var cnf = config.GetConfig()

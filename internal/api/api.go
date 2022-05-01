@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"database/sql"
-	"games-shelf-api-go/cmd/config"
-	"games-shelf-api-go/cmd/models"
+	"games-shelf-api-go/internal/config"
+	"games-shelf-api-go/internal/models"
 	"log"
 	"os"
 	"time"
