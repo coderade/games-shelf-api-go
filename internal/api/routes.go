@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"games-shelf-api-go/internal/api/handlers"
-	"games-shelf-api-go/internal/models"
+	"games-shelf-api-go/internal/repository"
 	rawgservice "games-shelf-api-go/internal/service"
 	"net/http"
 
@@ -56,7 +56,7 @@ func (s *Server) Routes() http.Handler {
 
 }
 
-type RequestHandlerFunction func(shelf *models.Shelf, w http.ResponseWriter, r *http.Request)
+type RequestHandlerFunction func(shelf *repository.Shelf, w http.ResponseWriter, r *http.Request)
 
 func (s *Server) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

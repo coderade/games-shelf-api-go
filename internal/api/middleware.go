@@ -30,41 +30,41 @@ func (s *Server) validateJWTToken(next http.Handler) http.Handler {
 		authHeader := request.Header.Get("Authorization")
 
 		if authHeader == "" {
-			utils.WriteErrorJson(writer, errors.New("missing authorization header"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("missing authorization header"), http.StatusUnauthorized)
 			return
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			utils.WriteErrorJson(writer, errors.New("invalid authorization header format"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("invalid authorization header format"), http.StatusUnauthorized)
 			return
 		}
 
 		token := headerParts[1]
 		claims, err := jwt.HMACCheck([]byte(token), []byte(s.Config.Secret))
 		if err != nil {
-			utils.WriteErrorJson(writer, errors.New("unauthorized - invalid token"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("unauthorized - invalid token"), http.StatusUnauthorized)
 			return
 		}
 
 		if !claims.Valid(time.Now()) {
-			utils.WriteErrorJson(writer, errors.New("unauthorized - token expired"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("unauthorized - token expired"), http.StatusUnauthorized)
 			return
 		}
 
 		if !claims.AcceptAudience("mydomain.com") {
-			utils.WriteErrorJson(writer, errors.New("unauthorized - invalid audience"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("unauthorized - invalid audience"), http.StatusUnauthorized)
 			return
 		}
 
 		if claims.Issuer != "mydomain.com" {
-			utils.WriteErrorJson(writer, errors.New("unauthorized - invalid issuer"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("unauthorized - invalid issuer"), http.StatusUnauthorized)
 			return
 		}
 
 		userID, err := strconv.ParseInt(claims.Subject, 10, 64)
 		if err != nil {
-			utils.WriteErrorJson(writer, errors.New("unauthorized - invalid user ID"), http.StatusUnauthorized)
+			utils.WriteErrorJSON(writer, errors.New("unauthorized - invalid user ID"), http.StatusUnauthorized)
 			return
 		}
 

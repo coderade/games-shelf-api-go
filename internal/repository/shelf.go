@@ -1,25 +1,29 @@
-package models
+package repository
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"golang.org/x/exp/slices"
+	"games-shelf-api-go/internal/models"
 	"time"
+
+	"golang.org/x/exp/slices"
 )
 
+// Shelf represents the repository for accessing game data.
 type Shelf struct {
 	DB *sql.DB
 }
 
+// NewShelf creates a new Shelf repository.
 func NewShelf(db *sql.DB) *Shelf {
 	return &Shelf{
 		DB: db,
 	}
 }
 
-// GetGameById returns a game specified by the ID and an error, if any
-func (shelf *Shelf) GetGameById(id int) (*Game, error) {
+// GetGameById returns a game specified by the ID and an error, if any.
+func (shelf *Shelf) GetGameById(id int) (*models.Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -27,7 +31,7 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 			FROM games WHERE id = $1`
 
 	row := shelf.DB.QueryRowContext(ctx, query, id)
-	var game Game
+	var game models.Game
 
 	err := row.Scan(
 		&game.ID,
@@ -45,14 +49,17 @@ func (shelf *Shelf) GetGameById(id int) (*Game, error) {
 	}
 
 	gameGenres, gamePlatforms, err := shelf.getGenresAndPlatformsByGameId(id)
+	if err != nil {
+		return nil, err
+	}
 
 	game.GameGenre = gameGenres
 	game.GamePlatform = gamePlatforms
 	return &game, nil
 }
 
-// GetAllGames returns all games and an error, if any
-func (shelf *Shelf) GetAllGames(genreID int, platformID int) ([]Game, error) {
+// GetAllGames returns all games and an error, if any.
+func (shelf *Shelf) GetAllGames(genreID int, platformID int) ([]models.Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -86,15 +93,15 @@ func (shelf *Shelf) GetAllGames(genreID int, platformID int) ([]Game, error) {
 	query = query + " ORDER BY title"
 
 	rows, err := shelf.DB.QueryContext(ctx, query)
-
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	var games []Game
+	var games []models.Game
 
 	for rows.Next() {
-		var game Game
+		var game models.Game
 
 		err := rows.Scan(
 			&game.ID,
@@ -124,8 +131,8 @@ func (shelf *Shelf) GetAllGames(genreID int, platformID int) ([]Game, error) {
 	return games, nil
 }
 
-// GetAllGenres returns all genres and an error, if any
-func (shelf *Shelf) GetAllGenres() ([]Genre, error) {
+// GetAllGenres returns all genres and an error, if any.
+func (shelf *Shelf) GetAllGenres() ([]models.Genre, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -133,15 +140,15 @@ func (shelf *Shelf) GetAllGenres() ([]Genre, error) {
 			FROM genres ORDER BY genre_name`
 
 	rows, err := shelf.DB.QueryContext(ctx, query)
-
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	var genres []Genre
+	var genres []models.Genre
 
 	for rows.Next() {
-		var genre Genre
+		var genre models.Genre
 
 		err := rows.Scan(
 			&genre.ID,
@@ -159,8 +166,8 @@ func (shelf *Shelf) GetAllGenres() ([]Genre, error) {
 	return genres, nil
 }
 
-// GetAllPlatforms returns all platforms and an error, if any
-func (shelf *Shelf) GetAllPlatforms() ([]Platform, error) {
+// GetAllPlatforms returns all platforms and an error, if any.
+func (shelf *Shelf) GetAllPlatforms() ([]models.Platform, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -168,15 +175,15 @@ func (shelf *Shelf) GetAllPlatforms() ([]Platform, error) {
 			FROM platforms ORDER BY platform_name`
 
 	rows, err := shelf.DB.QueryContext(ctx, query)
-
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	var platforms []Platform
+	var platforms []models.Platform
 
 	for rows.Next() {
-		var platform Platform
+		var platform models.Platform
 
 		err := rows.Scan(
 			&platform.ID,
@@ -194,8 +201,8 @@ func (shelf *Shelf) GetAllPlatforms() ([]Platform, error) {
 	return platforms, nil
 }
 
-func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]Genre, []Platform, error) {
-
+// getGenresAndPlatformsByGameId returns the genres and platforms associated with a game by its ID.
+func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]models.Genre, []models.Platform, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -207,21 +214,21 @@ func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]Genre, []Platform, 
        			p.generation
 			FROM games g
 					LEFT JOIN games_genres gg on g.id = gg.game_id
-					 LEFT JOIN games_platforms gp on g.id = gp.game_id
-					 LEFT JOIN genres gn on (gn.id = gg.genre_id)
-					 LEFT JOIN platforms p on (p.id = gp.platform_id)
+					LEFT JOIN games_platforms gp on g.id = gp.game_id
+					LEFT JOIN genres gn on (gn.id = gg.genre_id)
+					LEFT JOIN platforms p on (p.id = gp.platform_id)
 			WHERE gg.game_id = $1
 			  and gp.game_id = $1
 `
 	rows, _ := shelf.DB.QueryContext(ctx, query, id)
 	defer rows.Close()
 
-	var gameGenres []Genre
-	var gamePlatforms []Platform
+	var gameGenres []models.Genre
+	var gamePlatforms []models.Platform
 
 	for rows.Next() {
-		var g Genre
-		var p Platform
+		var g models.Genre
+		var p models.Platform
 		err := rows.Scan(
 			&g.ID,
 			&g.Name,
@@ -248,7 +255,8 @@ func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]Genre, []Platform, 
 	return gameGenres, gamePlatforms, nil
 }
 
-func (shelf *Shelf) AddGame(game Game) error {
+// AddGame adds a new game to the repository.
+func (shelf *Shelf) AddGame(game models.Game) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -271,7 +279,8 @@ func (shelf *Shelf) AddGame(game Game) error {
 	return nil
 }
 
-func (shelf *Shelf) EditGame(game Game) error {
+// EditGame updates an existing game in the repository.
+func (shelf *Shelf) EditGame(game models.Game) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -295,6 +304,7 @@ func (shelf *Shelf) EditGame(game Game) error {
 	return nil
 }
 
+// DeleteGame deletes a game from the repository by its ID.
 func (shelf *Shelf) DeleteGame(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

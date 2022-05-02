@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"games-shelf-api-go/internal/models"
+	"games-shelf-api-go/internal/repository"
 	"strings"
 
 	"github.com/graphql-go/graphql"
@@ -89,7 +90,7 @@ var graphQLFields = graphql.Fields{
 }
 
 // NewSchema creates a new GraphQL schema for games
-func NewSchema(shelf *models.Shelf) (graphql.Schema, error) {
+func NewSchema(shelf *repository.Shelf) (graphql.Schema, error) {
 	var err error
 	games, err = shelf.GetAllGames(0, 0)
 	if err != nil {

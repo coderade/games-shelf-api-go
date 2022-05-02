@@ -47,7 +47,7 @@ func SignIn(writer http.ResponseWriter, request *http.Request, cfg *config.Confi
 	err := json.NewDecoder(request.Body).Decode(&credentials)
 	if err != nil {
 		log.Printf("Error decoding credentials: %v", err)
-		utils.WriteErrorJson(writer, errors.New("invalid credentials"), http.StatusBadRequest)
+		utils.WriteErrorJSON(writer, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
 
@@ -55,7 +55,7 @@ func SignIn(writer http.ResponseWriter, request *http.Request, cfg *config.Confi
 	user, err := validateUser(credentials)
 	if err != nil {
 		log.Printf("Authentication failed: %v", err)
-		utils.WriteErrorJson(writer, errors.New("unauthorized"), http.StatusUnauthorized)
+		utils.WriteErrorJSON(writer, errors.New("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
@@ -63,11 +63,11 @@ func SignIn(writer http.ResponseWriter, request *http.Request, cfg *config.Confi
 	token, err := generateJWT(user.ID, cfg)
 	if err != nil {
 		log.Printf("Error generating JWT: %v", err)
-		utils.WriteErrorJson(writer, errors.New("internal server error"), http.StatusInternalServerError)
+		utils.WriteErrorJSON(writer, errors.New("internal server error"), http.StatusInternalServerError)
 		return
 	}
 
-	utils.WriteJson(writer, http.StatusOK, token, "token")
+	utils.WriteJSON(writer, http.StatusOK, token, "token")
 }
 
 // validateUser checks if the provided credentials are valid.
