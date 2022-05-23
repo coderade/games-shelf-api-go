@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: games_shelf_db
+    environment:
+      POSTGRES_DB: games_shelf
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: games_shelf_api
+    environment:
+      PORT: 4000
+      ENV: production
+      DB_DATA_SOURCE: postgres://admin:password@db/games_shelf?sslmode=disable
+      APP_SECRET: games-shelf-api-secret
+      RAWG_API_KEY: your_rawg_api_key
+    depends_on:
+      - db
+    ports:
+      - "4000:4000"
+
+volumes:
+  db_data:
