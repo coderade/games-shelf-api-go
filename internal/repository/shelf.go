@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"games-shelf-api-go/internal/db"
 	"games-shelf-api-go/internal/models"
 	"time"
 
@@ -12,13 +12,13 @@ import (
 
 // Shelf represents the repository for accessing game data.
 type Shelf struct {
-	DB *sql.DB
+	DB db.Database
 }
 
 // NewShelf creates a new Shelf repository.
-func NewShelf(db *sql.DB) *Shelf {
+func NewShelf(database db.Database) *Shelf {
 	return &Shelf{
-		DB: db,
+		DB: database,
 	}
 }
 

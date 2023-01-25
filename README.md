@@ -49,7 +49,7 @@ GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO admin;
 To create all the tables, sequences, constraints, and content needed for the application, run the following command:
 
 ```sh
-psql -h localhost -d games_shelf -U admin -p 5432 -a -q -f db/games_shelf.sql
+psql -h localhost -d games_shelf -U admin -p 5432 -a -q -f docs/db/games_shelf.sql
 ```
 
 ### Running the Application
