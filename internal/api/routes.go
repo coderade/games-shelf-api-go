@@ -56,7 +56,7 @@ func (s *Server) Routes() http.Handler {
 
 }
 
-type RequestHandlerFunction func(shelf *repository.Shelf, w http.ResponseWriter, r *http.Request)
+type RequestHandlerFunction func(shelf repository.ShelfRepository, w http.ResponseWriter, r *http.Request)
 
 func (s *Server) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

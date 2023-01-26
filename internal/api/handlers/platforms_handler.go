@@ -9,7 +9,7 @@ import (
 )
 
 // GetAllPlatforms handles the request to get all platforms.
-func GetAllPlatforms(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+func GetAllPlatforms(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	platforms, err := shelf.GetAllPlatforms()
 	if err != nil {
 		log.Printf("Error fetching platforms: %v", err)

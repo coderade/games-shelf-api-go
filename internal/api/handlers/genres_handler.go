@@ -9,7 +9,7 @@ import (
 )
 
 // GetAllGenres handles the request to get all genres.
-func GetAllGenres(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+func GetAllGenres(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	genres, err := shelf.GetAllGenres()
 	if err != nil {
 		log.Printf("Error fetching genres: %v", err)

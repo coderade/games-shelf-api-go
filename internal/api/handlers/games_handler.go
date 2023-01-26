@@ -28,7 +28,7 @@ type GamePayload struct {
 	Rating      string `json:"rating"`
 }
 
-func AddGame(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+func AddGame(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	var payload GamePayload
 	err := json.NewDecoder(request.Body).Decode(&payload)
 	if err != nil {
@@ -56,7 +56,7 @@ func AddGame(shelf *repository.Shelf, writer http.ResponseWriter, request *http.
 	}
 }
 
-func EditGame(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+func EditGame(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	var payload GamePayload
 	err := json.NewDecoder(request.Body).Decode(&payload)
 	if err != nil {
@@ -84,7 +84,7 @@ func EditGame(shelf *repository.Shelf, writer http.ResponseWriter, request *http
 	}
 }
 
-func DeleteGame(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+func DeleteGame(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	params := httprouter.ParamsFromContext(request.Context())
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
@@ -106,7 +106,7 @@ func DeleteGame(shelf *repository.Shelf, writer http.ResponseWriter, request *ht
 	}
 }
 
-func GetGame(shelf *repository.Shelf, rawgService *rawgservice.RawgService, writer http.ResponseWriter, request *http.Request) {
+func GetGame(shelf repository.ShelfRepository, rawgService rawgservice.RawgServiceInterface, writer http.ResponseWriter, request *http.Request) {
 	params := httprouter.ParamsFromContext(request.Context())
 	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
@@ -135,7 +135,7 @@ func GetGame(shelf *repository.Shelf, rawgService *rawgservice.RawgService, writ
 	}
 }
 
-func GetAllGames(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+func GetAllGames(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	queryValues := request.URL.Query()
 	genreId, _ := strconv.Atoi(queryValues.Get("genre_id"))
 	platformId, _ := strconv.Atoi(queryValues.Get("platform_id"))

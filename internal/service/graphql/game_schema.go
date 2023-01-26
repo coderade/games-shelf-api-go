@@ -1,4 +1,4 @@
-package graphql
+package graphqlschema
 
 import (
 	"games-shelf-api-go/internal/models"
@@ -14,26 +14,15 @@ var gameType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Game",
 		Fields: graphql.Fields{
-			"id": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"title": &graphql.Field{
-				Type: graphql.String,
-			},
-			"description": &graphql.Field{
-				Type: graphql.String,
-			},
-			"year": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"publisher": &graphql.Field{
-				Type: graphql.String,
-			},
-			"rating": &graphql.Field{
-				Type: graphql.Int,
-			},
+			"id":          &graphql.Field{Type: graphql.Int},
+			"title":       &graphql.Field{Type: graphql.String},
+			"description": &graphql.Field{Type: graphql.String},
+			"year":        &graphql.Field{Type: graphql.Int},
+			"publisher":   &graphql.Field{Type: graphql.String},
+			"rating":      &graphql.Field{Type: graphql.Int},
 		},
-	})
+	},
+)
 
 var graphQLFields = graphql.Fields{
 	"game": &graphql.Field{
@@ -77,20 +66,19 @@ var graphQLFields = graphql.Fields{
 			search, ok := params.Args["titleContains"].(string)
 			if ok {
 				for _, currentGame := range games {
-					if strings.Contains(currentGame.Title, search) {
+					if search != "" && strings.Contains(currentGame.Title, search) {
 						gameFound = currentGame
 						result = append(result, gameFound)
 					}
 				}
 			}
-
 			return result, nil
 		},
 	},
 }
 
 // NewSchema creates a new GraphQL schema for games
-func NewSchema(shelf *repository.Shelf) (graphql.Schema, error) {
+func NewSchema(shelf repository.ShelfRepository) (graphql.Schema, error) {
 	var err error
 	games, err = shelf.GetAllGames(0, 0)
 	if err != nil {

@@ -48,7 +48,7 @@ func (shelf *Shelf) GetGameById(id int) (*models.Game, error) {
 		return nil, err
 	}
 
-	gameGenres, gamePlatforms, err := shelf.getGenresAndPlatformsByGameId(id)
+	gameGenres, gamePlatforms, err := shelf.GetGenresAndPlatformsByGameId(id)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (shelf *Shelf) GetAllGames(genreID int, platformID int) ([]models.Game, err
 			return nil, err
 		}
 
-		gameGenres, gamePlatforms, err := shelf.getGenresAndPlatformsByGameId(game.ID)
+		gameGenres, gamePlatforms, err := shelf.GetGenresAndPlatformsByGameId(game.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -201,8 +201,8 @@ func (shelf *Shelf) GetAllPlatforms() ([]models.Platform, error) {
 	return platforms, nil
 }
 
-// getGenresAndPlatformsByGameId returns the genres and platforms associated with a game by its ID.
-func (shelf *Shelf) getGenresAndPlatformsByGameId(id int) ([]models.Genre, []models.Platform, error) {
+// GetGenresAndPlatformsByGameId returns the genres and platforms associated with a game by its ID.
+func (shelf *Shelf) GetGenresAndPlatformsByGameId(id int) ([]models.Genre, []models.Platform, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 

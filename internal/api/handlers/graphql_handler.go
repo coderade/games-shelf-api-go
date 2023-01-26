@@ -15,8 +15,8 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-// GamesGraphQL handles GraphQL queries for games
-func GamesGraphQL(shelf *repository.Shelf, writer http.ResponseWriter, request *http.Request) {
+// GamesGraphQL handles GraphQL queries for games.
+func GamesGraphQL(shelf repository.ShelfRepository, writer http.ResponseWriter, request *http.Request) {
 	schema, err := graphqlschema.NewSchema(shelf)
 	if err != nil {
 		log.Printf("Error creating GraphQL schema: %v", err)
@@ -46,7 +46,7 @@ func GamesGraphQL(shelf *repository.Shelf, writer http.ResponseWriter, request *
 	}
 }
 
-// executeQuery executes the given GraphQL query on the provided schema
+// executeQuery executes the given GraphQL query on the provided schema.
 func executeQuery(query string, schema graphql.Schema) *graphql.Result {
 	params := graphql.Params{Schema: schema, RequestString: query}
 	return graphql.Do(params)
