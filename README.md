@@ -1,5 +1,5 @@
 
-# Games Shelf API (Go)
+# games-shelf-api (Go)
 
 Games Shelf REST API developed in Go.
 
