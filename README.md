@@ -21,9 +21,76 @@ This application allows you to:
 
 Client application developed in React is available [here](https://github.com/coderade/games-shelf-client-react).
 
+
+## Project Structure
+
+Here is an overview of the project's directory structure:
+
+      games-shelf-api-go/
+      ├── cmd/
+      │   ├── main_test.go
+      │   └── main.go
+      ├── docs/
+      ├── internal/
+      │   ├── api/
+      │   │   ├── handlers/
+      │   │   │   ├── auth_handler.go
+      │   │   │   ├── auth_handler_test.go
+      │   │   │   ├── games_handler.go
+      │   │   │   ├── games_handler_test.go
+      │   │   │   ├── genres_handler.go
+      │   │   │   ├── genres_handler_test.go
+      │   │   │   ├── graphql_handler.go
+      │   │   │   ├── graphql_handler_test.go
+      │   │   │   ├── platforms_handler.go
+      │   │   │   ├── platforms_handler_test.go
+      │   │   │   ├── status_handler.go
+      │   │   │   └── status_handler_test.go
+      │   │   ├── middleware.go
+      │   │   ├── middleware_test.go
+      │   │   ├── routes.go
+      │   │   ├── server.go
+      │   │   └── server_test.go
+      │   ├── config/
+      │   │   └── config.go
+      │   ├── db/
+      │   │   ├── database_helper.go
+      │   │   ├── database_interface.go
+      │   │   └── database_mock.go
+      │   ├── logger/
+      │   │   └── logger.go
+      │   ├── mocks/
+      │   │   ├── rawgservice_mock.go
+      │   │   └── shelf_mock.go
+      │   ├── models/
+      │   │   ├── game.go
+      │   │   ├── genre.go
+      │   │   ├── platform.go
+      │   │   └── user.go
+      │   ├── repository/
+      │   │   ├── shelf_interface.go
+      │   │   └── shelf.go
+      │   ├── service/
+      │   │   ├── graphql/
+      │   │   │   └── schema.go
+      │   │   ├── rawg_service.go
+      │   │   └── rawg_service_interface.go
+      │   └── utils/
+      │       └── json.go
+      ├── .gitignore
+      ├── docker-compose.yml
+      ├── Dockerfile
+      ├── go.mod
+      ├── go.sum
+      └── README.md
+
+
 ## Running the Application 
 
-### Environment Variables
+
+### Running the application locally
+
+#### Environment Variables
 
 The following environment variables are required to run this application:
 
@@ -33,7 +100,7 @@ The following environment variables are required to run this application:
 - `APP_SECRET`: Application secret, used to create JWT token (default: **games-shelf-api-secret**)
 - `RAWG_API_KEY`: API key used to connect to the RAWG API. To get an API Key, check [here](https://rawg.io/apidocs).
 
-### Database Setup
+#### Database Setup
 
 To create the database, roles, and grant the needed privileges, run the following SQL commands:
 
@@ -69,14 +136,14 @@ go build cmd/*.go
 go run cmd/*.go
 ```
 
-### Steps to Run the Application
+### Run the Application using Docker
 
-1. **Build and run using Docker Compose**:
+ **Build and run using Docker Compose**:
    ```sh
    docker-compose up --build
    ```
 
-2. **Access the application**:
+ **Access the application**:
    The API will be available at `http://localhost:4000`.
 
 
