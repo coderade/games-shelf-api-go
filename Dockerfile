@@ -4,6 +4,9 @@ FROM golang:1.18 AS builder
 # Set the working directory inside the container
 WORKDIR /app
 
+# required if you have issues with proxy.golang.org being blocked
+ENV GOPROXY=direct  
+
 # Copy go.mod and go.sum files first to leverage Docker cache
 COPY go.mod go.sum ./
 
